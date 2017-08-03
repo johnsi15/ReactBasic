@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>React</title>
+</head>
+<body>
+  
+  <div id="app"></div>
+  
+<!-- CDN -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react-dom.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.25.0/babel.min.js"></script> 
+  -->
+
+
+<!-- Oficiales -->
+  <script src="https://unpkg.com/react@latest/dist/react.js"></script>
+  <script src="https://unpkg.com/react-dom@latest/dist/react-dom.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+
+  <!-- <script src="app.js"></script> -->
+  <!-- El file app.js esta todo documentado del ejemplo -->
+  <script type="text/babel">
+    const app = document.getElementById('app');
+
+    function reloj(){
+      let now = new Date().toLocaleTimeString();
+
+      const el = <span>{ now }</span>;
+      ReactDOM.render(
+        el,
+        app
+      );
+    }
+
+    setInterval(reloj, 1000);
+  </script>
+</body>
+</html>
