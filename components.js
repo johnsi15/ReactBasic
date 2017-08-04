@@ -71,6 +71,10 @@ ReactDOM.render(
 
 /*
   Example 4
+
+  Existen dos tipos de componentes, con estado (statefull components) y sin estado (stateless components),
+  En estos ejemlpos son stateless -> componentes sin estado,
+  Simplemente sirven para dibujar no van a tener ningun cambio de estado, ni hay ningun evento
 */
 
 // Esto es un array de objetos como un JSON
@@ -121,9 +125,7 @@ const UsersList = props => {
                       return <User userFather={ user } key={ i } />
                     });
 
-  console.log(listUser);
-
-  // retornamos un JSX con el nuevo array que es un array de componentes <User />
+  // Retornamos un JSX con el nuevo array que es un array de componentes <User />
   return (
     <div className="users-list">
       {listUser}
