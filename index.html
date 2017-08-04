@@ -11,8 +11,8 @@
 <!-- CDN -->
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react-dom.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.25.0/babel.min.js"></script> 
-  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.25.0/babel.min.js"></script>  -->
+ 
 
 
 <!-- Oficiales -->
@@ -23,19 +23,66 @@
   <!-- <script src="app.js"></script> -->
   <!-- El file app.js esta todo documentado del ejemplo -->
   <script type="text/babel">
-    const app = document.getElementById('app');
+    // Esto es un array de objetos como un JSON
+    const teachers = [
+      {
+        name: 'John Andrey',
+        img: 'https://avatars0.githubusercontent.com/u/2974447?v=4&u=34d9fdc885d305dc858896529ce896023f6ead2a&s=400'
+      },
+      {
+        name: 'John Serrano',
+        img: 'http://lorempixel.com/250/250/people/color/'
+      },
+      {
+        name: 'Eduardo',
+        img: 'http://lorempixel.com/250/250/people/color/'
+      },
+      {
+        name: 'Roberto',
+        img: 'http://lorempixel.com/250/250/people/color/'
+      },
+      {
+        name: 'Jhonatan',
+        img: 'http://lorempixel.com/250/250/people/color/'
+      },
+    ];
 
-    function reloj(){
-      let now = new Date().toLocaleTimeString();
+    // Componentes hijos
+    const Avatar = props => <img src={ props.userChild.img } alt={ props.userChild.name }/>;
+    const UserName = props => <p>{ props.userChild.name }</p>;
 
-      const el = <span>{ now }</span>;
-      ReactDOM.render(
-        el,
-        app
-      );
+    // Componente padre
+    const User = props => {
+      return (
+        <div className="user-item">
+          <Avatar userChild={ props.userFather } />
+          <UserName userChild={ props.userFather }/>
+        </div>
+      )
+    };
+
+    const UsersList = props => {
+      // mapeamos el array de objetos y lo guardamos en un nuevo array pero ya listo de componentes.,
+      // Se recomienda que el key sea el id que venga del request o de la base de datos y no el id que se genera del map,
+      // Porque react se basa en el key para direfenciar a un componente de otro para hacer cambios.
+      const listUser = props.list.map( (user, i) => {
+                      return <User userFather={ user } key={ i } />
+                    });
+
+      console.log(listUser);
+
+      // retornamos un JSX con el nuevo array que es un array de componentes <User />
+      return (
+        <div className="users-list">
+          {listUser}
+        </div>
+      )
     }
 
-    setInterval(reloj, 1000);
+    ReactDOM.render(
+      <UsersList list={teachers} />,
+      document.getElementById('app')
+    );
   </script>
 </body>
 </html>
