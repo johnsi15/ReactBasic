@@ -71,7 +71,7 @@ ReactDOM.render(
 
 /*
   Example 4
-
+  
   Existen dos tipos de componentes, con estado (statefull components) y sin estado (stateless components),
   En estos ejemlpos son stateless -> componentes sin estado,
   Simplemente sirven para dibujar componente no van a tener ningun cambio de estado, 
