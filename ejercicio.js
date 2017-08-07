@@ -55,7 +55,8 @@ class Movie extends React.Component {
     // Aya aca con this.props podemos usar directamente this.props.title etc...
     // console.log(this.props);
 
-    const { title, description, image} = this.props;
+    // Cuando se declarar objects de esta forma deben tener el mismo nombre en ambos lados.
+    const { title, description, image } = this.props;
     return(
       <li className="Movie">
         <figure className="Movie-image">
