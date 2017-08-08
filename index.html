@@ -68,15 +68,16 @@
     // Nota: los props se pueden pasar a los hijos.
     render(){
       // Me muestra todo el object data
-      // console.log(this.props.list)
+      console.log(this.state.list)
       const {
         moviesLength,
         likeCount,
         unlikeCount
       } = this.state;
+      // console.log(this.props.list)
       return(
         <section className="container">
-        <MovieList list={ this.props.list }
+        <MovieList list={ this.state.list }
               onLike={ this.onLike }
               onUnlike={ this.onUnlike }/>
           <Footer all={moviesLength}

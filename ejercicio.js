@@ -56,15 +56,16 @@ class App extends React.Component {
       likeCount,
       unlikeCount
     } = this.state;
+    // Se puede usar this.props.list O this.state.list porque al final se esta modificando el list.
     return(
       <section className="container">
-        <MovieList list={ this.props.list }
+        <MovieList list={ this.state.list }
             onLike={ this.onLike }
             onUnlike={ this.onUnlike }/>
 
-        <Footer all={moviesLength}
-           likeCount={likeCount}
-           unlikeCount={unlikeCount}/>
+        <Footer all={ moviesLength }
+           likeCount={ likeCount }
+           unlikeCount={ unlikeCount }/>
       </section>
     );
   }
