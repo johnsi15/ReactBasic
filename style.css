@@ -1,0 +1,128 @@
+body {
+  background: white;
+  font-family: sans-serif;
+}
+
+.container {
+  width: 400px;
+  box-sizing: border-box;
+  background: #ffffea;
+  border: #ddd 1px solid;
+  border-radius: 1px;
+  position: relative;
+  margin: 0 auto;
+
+}
+
+
+.MovieList {
+  box-sizing: border-box;
+  height: 560px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  padding: 15px;
+}
+
+.Movie {
+  border: 1px solid #ddd;
+  padding: 0;
+  display: flex;
+  margin: 0;
+  background: white;
+  margin-bottom: 15px;
+}
+
+.Movie:last-child {
+  margin-bottom: 0;
+}
+
+.Movie-image {
+  margin: 0;
+}
+
+.Movie-content {
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.Movie-meta {
+  padding: 15px 15px 0 15px;
+}
+.Movie-meta > h2 {
+  margin: 0;
+}
+
+.Movie-meta > p {
+  font-size: 14px;
+  margin: 0;
+  margin-top: 15px;
+}
+
+.Movie-actions {
+  /*border: 1px solid red;*/
+  box-sizing: border-box;
+  padding: 15px;
+}
+
+.Movie-actions > span {
+  border-radius: 50%;
+  font-size: 25px;
+  padding: 8px 10px;
+  cursor: pointer;
+  border: 1px solid #888;
+  color: #999;
+
+}
+.icon-like {
+  margin-right: 10px;
+}
+
+.icon-like:hover {
+  color: green;
+  border: 1px solid green;
+
+}
+
+.is-liked {
+  color: green !important;
+  border: 1px solid green !important;
+}
+
+.is-unliked {
+  color: red !important;
+  border: 1px solid red !important;
+}
+
+.icon-unlike:hover {
+  color: red;
+  border: 1px solid red;
+}
+
+
+.Footer {
+  box-sizing: border-box;
+  height: 40px;
+  bottom 0;
+  width: 100%;
+  left: 0;
+  background: white;
+  border-top: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+}
+
+.Footer > p {
+  margin-right: 10px;
+  padding: 5px;
+  cursor: pointer;
+  color: #555;
+}
+
+.Footer > p:hover {
+  text-decoration: underline;
+}
