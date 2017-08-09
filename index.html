@@ -23,55 +23,36 @@
   <!-- <script src="app.js"></script> -->
   <!-- El file app.js esta todo documentado del ejemplo -->
   <script type="text/babel">
-  const counter = (state = 0, action) => {
+  const reducer = (state = [], action) => {
     switch (action.type){
-      case 'INCREMENT':
-        return state + 1;
-      case 'DECREMENT':
-        return state - 1;
+      case 'add_to_array':
+        return [action.payload];
+      case 'add_one_more':
+        return [...state, action.payload];
       default:
         return state;
     }
   }
 
   const { createStore } = Redux;
-  // var createStore = Redux.createStore;
+  // var createStore = Redux.createStore(counter);
   // import { createStore } from 'redux';
-  const store = createStore(counter);
+  const store = createStore(reducer);
 
-  const Counter = ({
-    value,
-    onIncrement,
-    onDecrement
-  }) => (
-    <div>
-      <h1>{ value }</h1>
-      <button onClick={onIncrement}>+</button>
-      <button onClick={onDecrement}>-</button>
-    </div>
-  );
+  store.getState();
 
-  const render = () => {
-    ReactDOM.render(
-      <Counter
-        value={ store.getState() }
-        onIncrement={ () =>
-          store.dispatch({
-            type: 'INCREMENT'
-          })
-        }
-        onDecrement={ () =>
-          store.dispatch({
-            type: 'DECREMENT'
-          })
-        }
-      />,
-      document.getElementById('app')
-    )
+  const action = {
+    type: 'add_to_array',
+    payload: 'ReduxIsAwesome'
   }
 
-  store.subscribe(render);
-  render();
+  const action2 = {
+    type: 'add_one_more',
+    payload: 'And fun'
+  }
+  store.dispatch(action);
+  store.dispatch(action2);
+  document.body.innerHTML = store.getState();
 
   </script>
 </body>
