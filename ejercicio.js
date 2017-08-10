@@ -2,7 +2,6 @@
   Ejercicio 1
 */
 
-
 // Nota estos components se pueden tener en varios files,
 // para no hacer tan grande this file.
 class App extends React.Component {

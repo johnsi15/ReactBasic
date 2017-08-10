@@ -153,7 +153,7 @@ const todo = (state, action) => {
       if(state.id !== action.id){
         return state;
       }
-      // Cambiamos el completed que esta como false a true 
+      // Cambiamos el completed que esta como false a true
       return {
         ...state,
         completed: !state.completed
@@ -179,9 +179,12 @@ const todos = (state = [], action) => {
   }
 };
 
+// Un reducer para filtrar
 const visibilityFilter = (state = 'SHOW_ALL', action) => {
   switch (action.type){
     case 'SET_VISIBILITY_FILTER':
+      // console.log(action.filter)
+      // Aca llega el tipo de filtro Ej: SHOW_ACTIVE
       return action.filter;
     default:
       return state;
@@ -200,10 +203,57 @@ const store = createStore(todoApp);
 
 const { Component } = React;
 
+// Un Component basado en function resivimos los props directamente
+const FilterLink = ({
+  filter,
+  currentFilter,
+  children
+}) => {
+  // Validamos que el filter que me llega es el mismo que currentFilter
+  // Si es así enviamos es un span en vez de un <a>.
+  if(filter === currentFilter){
+    return <span>{children}</span>
+  }
+  return <a href='#'
+            onClick={ e => {
+              e.preventDefault();
+              store.dispatch({
+                type: 'SET_VISIBILITY_FILTER',
+                filter
+              })
+            }}
+          >
+            { children }
+        </a>
+};
+
+// Un reducer donde manejamos los types de filters
+const getVisibleTodos = (todos, filter) => {
+  switch (filter){
+    case 'SHOW_ALL':
+      return todos;
+    case 'SHOW_COMPLETED':
+      // Este filter es una function propia de JavaScript
+      // Entonces donde t.completed sea true
+      return todos.filter(t => t.completed);
+    case 'SHOW_ACTIVE':
+      // Aca es lo mismo si es true lo cambia a false entonces ese no es Activate
+      return todos.filter(t => !t.completed);
+  }
+}
+
 // Con el dispatch despachamos el reducer todos
 let nextTodoId = 0;
 class TodoApp extends Component {
   render() {
+    const {
+      todos,
+      visibilityFilter
+    } = this.props; // Recibimos los props
+    const visibleTodos = getVisibleTodos(
+      todos,
+      visibilityFilter
+    );
     return (
       <div className='container'>
         <input ref={text => {
@@ -220,7 +270,7 @@ class TodoApp extends Component {
             Add Todo
         </button>
         <ul>
-          {this.props.todos.map(todo =>
+          {visibleTodos.map(todo =>
             <li key={todo.id}
               onClick={() => {
                 store.dispatch({
@@ -235,14 +285,37 @@ class TodoApp extends Component {
             </li>
           )}
         </ul>
+        {/* Con el { ' ' } dejamos un espacio al lado. */}
+        <p>
+          Show:
+          { ', ' }
+          <FilterLink filter='SHOW_ALL' currentFilter={visibilityFilter}>
+            All
+          </FilterLink>
+          { ', ' }
+          <FilterLink filter='SHOW_ACTIVE' currentFilter={visibilityFilter}>
+            Activate
+          </FilterLink>
+          { ', ' }
+          <FilterLink filter='SHOW_COMPLETED' currentFilter={visibilityFilter}>
+            Completed
+          </FilterLink>
+        </p>
       </div>
     );
   }
 }
 
+
+/*
+  Nota: Cada vez que dispara el dispatch se activa o vuelve a correr
+    el store.subscribe(render);
+  Todo lo que venga ... todos={store.getState().todos}
+  visibilityFilter={store.getState().visibilityFilter}
+*/
 const render = () => {
   ReactDOM.render(
-    <TodoApp todos={store.getState().todos}/>,
+    <TodoApp {...store.getState()}/>,
     document.getElementById('app')
   );
 };
