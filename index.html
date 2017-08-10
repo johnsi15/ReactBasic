@@ -23,36 +23,112 @@
   <!-- <script src="app.js"></script> -->
   <!-- El file app.js esta todo documentado del ejemplo -->
   <script type="text/babel">
-  const reducer = (state = [], action) => {
+  const todo = (state, action) => {
     switch (action.type){
-      case 'add_to_array':
-        return [action.payload];
-      case 'add_one_more':
-        return [...state, action.payload];
+      case 'ADD_TODO':
+        return {
+          id: action.id,
+          text: action.text,
+          completed: false
+        };
+      case 'TOGGLE_TODO':
+        if(state.id !== action.id){
+          return state;
+        }
+
+        return {
+          ...state,
+          completed: !state.completed
+        };
       default:
         return state;
     }
-  }
+  };
 
+  const todos = (state = [], action) => {
+    switch (action.type){
+      case 'ADD_TODO':
+        return [
+          ...state,
+          todo(undefined, action)
+        ];
+      case 'TOGGLE_TODO':
+        return state.map(t => todo(t, action));
+      default:
+        return state;
+    }
+  };
+
+  const visibilityFilter = (state = 'SHOW_ALL', action) => {
+    switch (action.type){
+      case 'SET_VISIBILITY_FILTER':
+        return action.filter;
+      default:
+        return state;
+    }
+  };
+
+  // Con esto podemos tener varios reducers
+  const { combineReducers } = Redux;
+  const todoApp = combineReducers({
+    todos,
+    visibilityFilter
+  });
+  // Creamos el stote del los reducers
   const { createStore } = Redux;
-  // var createStore = Redux.createStore(counter);
-  // import { createStore } from 'redux';
-  const store = createStore(reducer);
+  const store = createStore(todoApp);
 
-  store.getState();
+  const { Component } = React;
 
-  const action = {
-    type: 'add_to_array',
-    payload: 'ReduxIsAwesome'
+  // Con el dispatch despachamos el reducer todos
+  let nextTodoId = 0;
+  class TodoApp extends Component {
+    render() {
+      return (
+        <div className='container'>
+          <input ref={text => {
+            this.input = text;
+          }} />
+          <button onClick={ () => {
+              store.dispatch({
+                type: 'ADD_TODO',
+                text: this.input.value,
+                id: nextTodoId++
+              });
+              this.input.value = '';
+            }}>
+              Add Todo
+          </button>
+          <ul>
+            {this.props.todos.map(todo =>
+              <li key={todo.id}
+                onClick={() => {
+                  store.dispatch({
+                    type: 'TOGGLE_TODO',
+                    id: todo.id
+                  });
+                }}
+                style={{
+                  textDecoration: todo.completed ? 'line-through' : 'none'
+                }}>
+                {todo.text}
+              </li>
+            )}
+          </ul>
+        </div>
+      );
+    }
   }
 
-  const action2 = {
-    type: 'add_one_more',
-    payload: 'And fun'
-  }
-  store.dispatch(action);
-  store.dispatch(action2);
-  document.body.innerHTML = store.getState();
+  const render = () => {
+    ReactDOM.render(
+      <TodoApp todos={store.getState().todos}/>,
+      document.getElementById('app')
+    );
+  };
+  // Suscribimos la funcion render.
+  store.subscribe(render);
+  render();
 
   </script>
 </body>
