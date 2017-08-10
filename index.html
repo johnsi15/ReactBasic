@@ -208,7 +208,7 @@
     switch (action.type){
       case 'SET_VISIBILITY_FILTER':
         // console.log(action.filter)
-        // Aca llega el tipo de filtro SHOW_ACTIVE
+        // Aca llega el tipo de filtro Ej: SHOW_ACTIVE
         return action.filter;
       default:
         return state;
@@ -227,14 +227,14 @@
 
   const { Component } = React;
 
-
   // Un Component basado en function resivimos los props directamente
   const FilterLink = ({
     filter,
     currentFilter,
     children
   }) => {
-    
+    // Validamos que el filter que me llega es el mismo que currentFilter
+    // Si es así enviamos es un span en vez de un <a>.
     if(filter === currentFilter){
       return <span>{children}</span>
     }
@@ -250,6 +250,34 @@
               { children }
           </a>
   };
+
+  // Pasando a components
+  const Todo = ({
+    onClick,
+    completed,
+    text
+  }) => (
+    <li
+      onClick={onClick}
+      style={{
+        textDecoration: completed ? 'line-through' : 'none'
+      }}>
+      {text}
+    </li>
+  );
+
+  // Otro component llamando al component <Todo />
+  const TodoList = ({todos, onTodoClick}) => (
+    <ul>
+      {todos.map(todo =>
+        <Todo
+          key={todo.id}
+          {...todo}
+          onClick={() => onTodoClick(todo.id)}
+        />
+      )}
+    </ul>
+  )
 
   // Un reducer donde manejamos los types de filters
   const getVisibleTodos = (todos, filter) => {
@@ -293,34 +321,27 @@
             }}>
               Add Todo
           </button>
-          <ul>
-            {visibleTodos.map(todo =>
-              <li key={todo.id}
-                onClick={() => {
-                  store.dispatch({
-                    type: 'TOGGLE_TODO',
-                    id: todo.id
-                  });
-                }}
-                style={{
-                  textDecoration: todo.completed ? 'line-through' : 'none'
-                }}>
-                {todo.text}
-              </li>
-            )}
-          </ul>
+          <TodoList
+            todos={visibleTodos}
+            onTodoClick={id =>
+              store.dispatch({
+                type: 'TOGGLE_TODO',
+                id
+              })
+            }
+          />
           {/* Con el { ' ' } dejamos un espacio al lado. */}
           <p>
             Show:
-            { ' ' }
+            { ', ' }
             <FilterLink filter='SHOW_ALL' currentFilter={visibilityFilter}>
               All
             </FilterLink>
-            { ' ' }
+            { ', ' }
             <FilterLink filter='SHOW_ACTIVE' currentFilter={visibilityFilter}>
               Activate
             </FilterLink>
-            { ' ' }
+            { ', ' }
             <FilterLink filter='SHOW_COMPLETED' currentFilter={visibilityFilter}>
               Completed
             </FilterLink>
@@ -330,8 +351,12 @@
     }
   }
 
-  // Todo lo que venga ... todos={store.getState().todos}
-  // visibilityFilter={store.getState().visibilityFilter}
+  /*
+    Nota: Cada vez que dispara el dispatch se activa o vuelve a correr
+      el store.subscribe(render);
+    Todo lo que venga ... todos={store.getState().todos}
+    visibilityFilter={store.getState().visibilityFilter}
+  */
   const render = () => {
     ReactDOM.render(
       <TodoApp {...store.getState()}/>,
