@@ -71,7 +71,8 @@ const { Component } = React;
 const FilterLink = ({
   filter,
   currentFilter,
-  children
+  children,
+  onClick
 }) => {
   // Validamos que el filter que me llega es el mismo que currentFilter
   // Si es así enviamos es un span en vez de un <a>.
@@ -81,22 +82,46 @@ const FilterLink = ({
   return <a href='#'
             onClick={ e => {
               e.preventDefault();
-              store.dispatch({
-                type: 'SET_VISIBILITY_FILTER',
-                filter
-              })
+              onClick(filter)
             }}
           >
             { children }
         </a>
 };
 
+const Footer = ({ visibilityFilter, onFilterClick }) => (
+  // {/* Con el { ' ' } dejamos un espacio al lado. */}
+  <p>
+    Show:
+    { ' ' }
+    <FilterLink
+      filter='SHOW_ALL'
+      currentFilter={ visibilityFilter }
+      onClick={ onFilterClick }
+    >
+      All
+    </FilterLink>
+    { ', ' }
+    <FilterLink
+      filter='SHOW_ACTIVE'
+      currentFilter={ visibilityFilter }
+      onClick={ onFilterClick }
+    >
+      Activate
+    </FilterLink>
+    { ', ' }
+    <FilterLink
+      filter='SHOW_COMPLETED'
+      currentFilter={ visibilityFilter }
+      onClick={ onFilterClick }
+    >
+      Completed
+    </FilterLink>
+  </p>
+);
+
 // Pasando a components
-const Todo = ({
-  onClick,
-  completed,
-  text
-}) => (
+const Todo = ({ onClick, completed, text }) => (
   <li
     onClick={onClick}
     style={{
@@ -107,7 +132,7 @@ const Todo = ({
 );
 
 // Otro component llamando al component <Todo />
-const TodoList = ({todos, onTodoClick}) => (
+const TodoList = ({ todos, onTodoClick }) => (
   <ul>
     {todos.map(todo =>
       <Todo
@@ -117,7 +142,24 @@ const TodoList = ({todos, onTodoClick}) => (
       />
     )}
   </ul>
-)
+);
+
+const AddTodo = ({ onAddClick }) => {
+  let input;
+  return (
+    <div>
+      <input ref={text => {
+        input = text;
+      }} />
+      <button onClick={ () => {
+          onAddClick(input.value);
+          input.value = '';
+        }}>
+          Add Todo
+      </button>
+    </div>
+  )
+}
 
 // Un reducer donde manejamos los types de filters
 const getVisibleTodos = (todos, filter) => {
@@ -136,59 +178,44 @@ const getVisibleTodos = (todos, filter) => {
 
 // Con el dispatch despachamos el reducer todos
 let nextTodoId = 0;
-class TodoApp extends Component {
-  render() {
-    const {
-      todos,
-      visibilityFilter
-    } = this.props; // Recibimos los props
-    const visibleTodos = getVisibleTodos(
-      todos,
-      visibilityFilter
-    );
-    return (
-      <div className='container'>
-        <input ref={text => {
-          this.input = text;
-        }} />
-        <button onClick={ () => {
-            store.dispatch({
-              type: 'ADD_TODO',
-              text: this.input.value,
-              id: nextTodoId++
-            });
-            this.input.value = '';
-          }}>
-            Add Todo
-        </button>
-        <TodoList
-          todos={visibleTodos}
-          onTodoClick={id =>
-            store.dispatch({
-              type: 'TOGGLE_TODO',
-              id
-            })
-          }
-        />
-        {/* Con el { ' ' } dejamos un espacio al lado. */}
-        <p>
-          Show:
-          { ', ' }
-          <FilterLink filter='SHOW_ALL' currentFilter={visibilityFilter}>
-            All
-          </FilterLink>
-          { ', ' }
-          <FilterLink filter='SHOW_ACTIVE' currentFilter={visibilityFilter}>
-            Activate
-          </FilterLink>
-          { ', ' }
-          <FilterLink filter='SHOW_COMPLETED' currentFilter={visibilityFilter}>
-            Completed
-          </FilterLink>
-        </p>
-      </div>
-    );
-  }
+const TodoApp = ({ todos, visibilityFilter }) => {
+  // text como tiene el mismo nombre se envia solo text en el object
+  return (
+    <div className='container'>
+      <AddTodo onAddClick={text =>
+          store.dispatch({
+            type: 'ADD_TODO',
+            id: nextTodoId++,
+            text,
+          })
+        }
+      />
+      <TodoList
+        todos={
+          getVisibleTodos(
+            todos,
+            visibilityFilter
+          )
+        }
+        onTodoClick={id =>
+          store.dispatch({
+            type: 'TOGGLE_TODO',
+            id
+          })
+        }
+      />
+      <Footer
+        visibilityFilter={ visibilityFilter }
+        onFilterClick={ filter =>
+          store.dispatch({
+            type: 'SET_VISIBILITY_FILTER',
+            filter
+          })
+        }
+      />
+    </div>
+  );
+
 }
 
 /*
