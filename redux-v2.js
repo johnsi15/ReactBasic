@@ -68,52 +68,82 @@ const store = createStore(todoApp);
 const { Component } = React;
 
 // Un Component basado en function resivimos los props directamente
-const FilterLink = ({
-  filter,
-  currentFilter,
+// children o props.children le indicamos que es el hijo de ese component
+// children es una palabra reservada para lo hijos de los components
+const Link = ({
+  active,
   children,
   onClick
 }) => {
-  // Validamos que el filter que me llega es el mismo que currentFilter
+  // Validamos que sea el filtro active true
   // Si es así enviamos es un span en vez de un <a>.
-  if(filter === currentFilter){
+  if(active){
     return <span>{children}</span>
   }
   return <a href='#'
             onClick={ e => {
               e.preventDefault();
-              onClick(filter)
+              onClick()
             }}
           >
             { children }
         </a>
 };
 
-const Footer = ({ visibilityFilter, onFilterClick }) => (
+class FilterLink extends Component {
+  // Montamos el resultado del store.subscribe
+  componentDidMount(){
+    // Cuando damos un enter y no colocamos nada en la @ function le indicamos que es solo una linea.
+    // Por eso no podemos agregar ; al final de this.forceUpdate
+    this.unsubscribe = store.subscribe(() =>
+      this.forceUpdate()
+    );
+  }
+
+  // Desmontamos el subscribe
+  componentWillUnmount(){
+    this.unsubscribe();
+  }
+
+  render(){
+    const props = this.props;
+    const state = store.getState();
+
+    return (
+      <Link
+        active={ props.filter === state.visibilityFilter }
+        onClick={() =>
+          store.dispatch({
+            type: 'SET_VISIBILITY_FILTER',
+            filter: props.filter
+          })
+        }
+      >
+        { props.children }
+      </Link>
+    )
+  }
+}
+
+const Footer = () => (
   // {/* Con el { ' ' } dejamos un espacio al lado. */}
   <p>
     Show:
     { ' ' }
     <FilterLink
       filter='SHOW_ALL'
-      currentFilter={ visibilityFilter }
-      onClick={ onFilterClick }
     >
       All
     </FilterLink>
     { ', ' }
     <FilterLink
       filter='SHOW_ACTIVE'
-      currentFilter={ visibilityFilter }
-      onClick={ onFilterClick }
     >
       Activate
     </FilterLink>
     { ', ' }
     <FilterLink
       filter='SHOW_COMPLETED'
-      currentFilter={ visibilityFilter }
-      onClick={ onFilterClick }
     >
       Completed
     </FilterLink>
@@ -204,15 +234,7 @@ const TodoApp = ({ todos, visibilityFilter }) => {
           })
         }
       />
-      <Footer
-        visibilityFilter={ visibilityFilter }
-        onFilterClick={ filter =>
-          store.dispatch({
-            type: 'SET_VISIBILITY_FILTER',
-            filter
-          })
-        }
-      />
+      <Footer />
     </div>
   );
 
@@ -221,8 +243,7 @@ const TodoApp = ({ todos, visibilityFilter }) => {
 /*
   Nota: Cada vez que dispara el dispatch se activa o vuelve a correr
     el store.subscribe(render);
-  Todo lo que venga ... todos={store.getState().todos}
-  visibilityFilter={store.getState().visibilityFilter}
+  Todo lo que venga ... todos={store.getState().todos} visibilityFilter={store.getState().visibilityFilter}
 */
 const render = () => {
   ReactDOM.render(
