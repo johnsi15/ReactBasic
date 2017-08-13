@@ -229,6 +229,8 @@
   const { Component } = React;
 
   // Un Component basado en function resivimos los props directamente
+  // children o props.children le indicamos que es el hijo de ese component
+  // children es una palabra reservada para lo hijos de los components
   const Link = ({
     active,
     children,
@@ -333,15 +335,20 @@
     </ul>
   );
 
-  const AddTodo = ({ onAddClick }) => {
+  const AddTodo = () => {
     let input;
+    // Lo que devuelve ref en el unput es el value lo guardamos en una variable input
     return (
       <div>
         <input ref={text => {
           input = text;
         }} />
         <button onClick={ () => {
-            onAddClick(input.value);
+            store.dispatch({
+              type: 'ADD_TODO',
+              id: nextTodoId++,
+              text: input.value
+            })
             input.value = '';
           }}>
             Add Todo
@@ -365,25 +372,30 @@
     }
   }
 
-  // Con el dispatch despachamos el reducer todos
-  let nextTodoId = 0;
-  const TodoApp = ({ todos, visibilityFilter }) => {
-    // text como tiene el mismo nombre se envia solo text en el object
-    return (
-      <div className='container'>
-        <AddTodo onAddClick={text =>
-            store.dispatch({
-              type: 'ADD_TODO',
-              id: nextTodoId++,
-              text,
-            })
-          }
-        />
+  class VisibleTodoList extends Component {
+    // Montamos el resultado del store.subscribe
+    componentDidMount(){
+    // Cuando damos un enter y no colocamos nada en la @ function le indicamos que es solo una linea.
+    // Por eso no podemos agregar ; al final de this.forceUpdate
+      this.unsubscribe = store.subscribe(() =>
+        this.forceUpdate()
+      );
+    }
+
+    // Desmontamos el subscribe
+    componentWillUnmount(){
+      this.unsubscribe();
+    }
+    render(){
+      const props = this.props;
+      const state = store.getState();
+
+      return (
         <TodoList
           todos={
             getVisibleTodos(
-              todos,
-              visibilityFilter
+              state.todos,
+              state.visibilityFilter
             )
           }
           onTodoClick={id =>
@@ -393,26 +405,30 @@
             })
           }
         />
+      );
+    }
+  }
+
+  // Con el dispatch despachamos el reducer todos
+  let nextTodoId = 0;
+  const TodoApp = () => {
+    // text como tiene el mismo nombre se envia solo text en el object
+    return (
+      <div className='container'>
+        <AddTodo />
+        <VisibleTodoList />
         <Footer />
       </div>
     );
 
   }
 
-  /*
-    Nota: Cada vez que dispara el dispatch se activa o vuelve a correr
-      el store.subscribe(render);
-    Todo lo que venga ... todos={store.getState().todos} visibilityFilter={store.getState().visibilityFilter}
-  */
-  const render = () => {
-    ReactDOM.render(
-      <TodoApp {...store.getState()}/>,
-      document.getElementById('app')
-    );
-  };
-  // Suscribimos la funcion render.
-  store.subscribe(render);
-  render();
+  // Cada vez que hacemos render de TodoApp usamos el componentDidMount(),
+  // para subscribe el nuevo state o reducer
+  ReactDOM.render(
+    <TodoApp />,
+    document.getElementById('app')
+  );
 
   </script>
 </body>
