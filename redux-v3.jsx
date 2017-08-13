@@ -212,11 +212,23 @@ const getVisibleTodos = (todos, filter) => {
   }
 }
 
+/*
+  El store contiene todo el árbol de estado de tu aplicación. La única forma de cambiar el estado que contiene es despachando una acción.
+*/
+
 class VisibleTodoList extends Component {
   // Montamos el resultado del store.subscribe
   componentDidMount(){
   // Cuando damos un enter y no colocamos nada en la @ function le indicamos que es solo una linea.
   // Por eso no podemos agregar ; al final de this.forceUpdate
+  // El componente necesita volver a renderizar llamando a forceUpdate ().
+  /*
+    Example:
+    const render = () => {
+      ReactDOM.render(....);
+    };
+    store.subscribe(render);
+  */
     this.unsubscribe = store.subscribe(() =>
       this.forceUpdate()
     );
@@ -226,11 +238,15 @@ class VisibleTodoList extends Component {
   componentWillUnmount(){
     this.unsubscribe();
   }
+
   render(){
     const props = this.props;
-    // Cuando usamos esto estamos usando los reducers ya definidos
+    // getState() regresa el actual árbol de estado de tu aplicación. Es igual al último valor regresado por los reducers del store.
     const state = store.getState();
-
+    /*
+    El dispatch
+    Despacha una acción. Esta es la única forma de realizar un cambio de estado.
+    */
     return (
       <TodoList
         todos={
