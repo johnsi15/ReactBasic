@@ -66,6 +66,29 @@ const { Component } = React;
 const { connect } = ReactRedux;
 // import { connect } from 'react-redux';
 
+let nextTodoId = 0;
+const addTodo = (text) => {
+  return {
+    type: 'ADD_TODO',
+    id: nextTodoId++,
+    text
+  };
+};
+
+const setVisibilityFilter = (filter) => {
+  return {
+    type: 'SET_VISIBILITY_FILTER',
+    filter: filter
+  };
+};
+
+const toggleTodo = (id) => {
+  return {
+    type: 'TOGGLE_TODO',
+    id
+  };
+};
+
 // Un Component basado en function resivimos los props directamente
 // children o props.children le indicamos que es el hijo de ese component
 // children es una palabra reservada para lo hijos de los components
@@ -98,10 +121,7 @@ const mapStateToLinkProps = (state, ownProps) => {
 const mapDispatchToLinkProps = (dispatch, ownProps) => {
   return {
     onClick: () => {
-      dispatch({
-        type: 'SET_VISIBILITY_FILTER',
-        filter: ownProps.filter
-      });
+      dispatch(setVisibilityFilter(ownProps.filter));
     }
   };
 };
@@ -203,7 +223,7 @@ const TodoList = ({ todos, onTodoClick }) => (
 
 // Recordar que este es un component function y solo se pasa el props y se ejecuta con el mismo nombre.
 // Podemos pasarle mas props y el context que en este caso es store
-let nextTodoId = 0;
+
 let  AddTodo = ({ dispatch }) => {
   let input;
   // Lo que devuelve ref en el unput es el value lo guardamos en una variable input
@@ -213,11 +233,7 @@ let  AddTodo = ({ dispatch }) => {
         input = text;
       }} />
       <button onClick={ () => {
-          dispatch({
-            type: 'ADD_TODO',
-            id: nextTodoId++,
-            text: input.value
-          })
+          dispatch(addTodo(input.value))
           input.value = '';
         }}>
           Add Todo
@@ -264,10 +280,7 @@ const mapStateToTodoListProps = (state) => {
 const mapDispatchToTodoListProps = (dispatch) => {
   return {
     onTodoClick: (id) => {
-      dispatch({
-        type: 'TOGGLE_TODO',
-        id
-      })
+      dispatch(toggleTodo(id))
     }
   };
 };
