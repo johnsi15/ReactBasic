@@ -181,6 +181,7 @@ const TodoList = ({ todos, onTodoClick }) => (
 
 // Recordar que este es un component function y solo se pasa el props y se ejecuta con el mismo nombre.
 // Podemos pasarle mas props y el context que en este caso es store
+let nextTodoId = 0;
 const AddTodo = (props, { store }) => {
   let input;
   // Lo que devuelve ref en el unput es el value lo guardamos en una variable input
@@ -222,68 +223,90 @@ const getVisibleTodos = (todos, filter) => {
   }
 }
 
+const mapStateToProps = (state) => {
+  return {
+    todos: getVisibleTodos(
+      state.todos,
+      state.visibilityFilter
+    )
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onTodoClick: (id) => {
+      dispatch({
+        type: 'TOGGLE_TODO',
+        id
+      })
+    }
+  };
+};
+
+// Con esto no necesitamos el component VisibleTodoList
+const { connect } = ReactRedux;
+// import { connect } from 'react-redux';
+
+// Se creo un component basado en connect de ReactRedux para pasar los state y el dispatch
+const VisibleTodoList = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(TodoList);
+
 /*
   El store contiene todo el árbol de estado de tu aplicación. La única forma de cambiar el estado que contiene es despachando una acción.
 */
 
-class VisibleTodoList extends Component {
-  // Montamos el resultado del store.subscribe
-  componentDidMount(){
-    const { store } = this.context;
-  // Cuando damos un enter y no colocamos nada en la @ function le indicamos que es solo una linea.
-  // Por eso no podemos agregar ; al final de this.forceUpdate
-  // El componente necesita volver a renderizar llamando a forceUpdate ().
-  /*
-    Example:
-    const render = () => {
-      ReactDOM.render(....);
-    };
-    store.subscribe(render);
-  */
-    this.unsubscribe = store.subscribe(() =>
-      this.forceUpdate()
-    );
-  }
-
-  // Desmontamos el subscribe
-  componentWillUnmount(){
-    this.unsubscribe();
-  }
-
-  render(){
-    const props = this.props;
-    const { store } = this.context;
-    // getState() regresa el actual árbol de estado de tu aplicación. Es igual al último valor regresado por los reducers del store.
-    const state = store.getState();
-    /*
-    El dispatch
-    Despacha una acción. Esta es la única forma de realizar un cambio de estado.
-    */
-    return (
-      <TodoList
-        todos={
-          getVisibleTodos(
-            state.todos,
-            state.visibilityFilter
-          )
-        }
-        onTodoClick={id =>
-          store.dispatch({
-            type: 'TOGGLE_TODO',
-            id
-          })
-        }
-      />
-    );
-  }
-}
-// Declaramos el context
-VisibleTodoList.contextTypes = {
-  store: React.PropTypes.object
-}
+// class VisibleTodoList extends Component {
+//   // Montamos el resultado del store.subscribe
+//   componentDidMount(){
+//     const { store } = this.context;
+//   // Cuando damos un enter y no colocamos nada en la @ function le indicamos que es solo una linea.
+//   // Por eso no podemos agregar ; al final de this.forceUpdate
+//   // El componente necesita volver a renderizar llamando a forceUpdate ().
+//   /*
+//     Example:
+//     const render = () => {
+//       ReactDOM.render(....);
+//     };
+//     store.subscribe(render);
+//   */
+//     this.unsubscribe = store.subscribe(() =>
+//       this.forceUpdate()
+//     );
+//   }
+//
+//   // Desmontamos el subscribe
+//   componentWillUnmount(){
+//     this.unsubscribe();
+//   }
+//
+//   render(){
+//     const props = this.props;
+//     const { store } = this.context;
+//     // getState() regresa el actual árbol de estado de tu aplicación. Es igual al último valor regresado por los reducers del store.
+//     const state = store.getState();
+//     /*
+//     El dispatch
+//     Despacha una acción. Esta es la única forma de realizar un cambio de estado.
+//     */
+//     return (
+//       <TodoList
+//         todos={
+//
+//         }
+//         onTodoClick={
+//         }
+//       />
+//     );
+//   }
+// }
+// // Declaramos el context
+// VisibleTodoList.contextTypes = {
+//   store: React.PropTypes.object
+// }
 
 // Con el dispatch despachamos el reducer todos
-let nextTodoId = 0;
 const TodoApp = () => {
   // text como tiene el mismo nombre se envia solo text en el object
   return (
