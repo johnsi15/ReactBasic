@@ -19,7 +19,7 @@
   <script src="https://unpkg.com/react@latest/dist/react.js"></script>
   <script src="https://unpkg.com/react-dom@latest/dist/react-dom.js"></script>
   <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-redux/5.0.6/react-redux.min.js"></script>
   <!-- <script src="app.js"></script> -->
   <!-- El file app.js esta todo documentado del ejemplo -->
   <script type="text/babel">
@@ -458,7 +458,7 @@
       </div>
     );
   }
-
+  /* Todo esto es lo mismo que la linea de abajo con ReactRedux
   class Provider extends Component {
     getChildContext(){
       return {
@@ -474,9 +474,14 @@
   // Declaramos el contexto hijo que vamos a usar en los demas components
   Provider.childContextTypes = {
     store: React.PropTypes.object
-  };
+  };*/
 
-  // Creamos el stote del los reducers
+  // Necesitamos tener instalado React-redux para usar provider de Redux
+  const { Provider } = ReactRedux;
+  // import { Provider } from 'react-redux';
+  // var Provider = require('react-redux').Provider;
+
+  // Creamos el store del los reducers
   const { createStore } = Redux;
 
   // Cada vez que hacemos render de TodoApp usamos el componentDidMount(),
@@ -492,6 +497,7 @@
   /*
     Nota: En los JSX { } no se puede colocar ; al final de cada sentencia de código.
   */
+
 
   </script>
 </body>

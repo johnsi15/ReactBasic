@@ -294,7 +294,7 @@ const TodoApp = () => {
     </div>
   );
 }
-
+/* Todo esto es lo mismo que la linea de abajo con ReactRedux
 class Provider extends Component {
   getChildContext(){
     return {
@@ -310,9 +310,14 @@ class Provider extends Component {
 // Declaramos el contexto hijo que vamos a usar en los demas components
 Provider.childContextTypes = {
   store: React.PropTypes.object
-};
+};*/
 
-// Creamos el stote del los reducers
+// Necesitamos tener instalado React-redux para usar provider de Redux
+const { Provider } = ReactRedux;
+// import { Provider } from 'react-redux';
+// var Provider = require('react-redux').Provider;
+
+// Creamos el store del los reducers
 const { createStore } = Redux;
 
 // Cada vez que hacemos render de TodoApp usamos el componentDidMount(),
