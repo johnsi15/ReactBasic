@@ -179,10 +179,13 @@ const TodoList = ({ todos, onTodoClick }) => (
   </ul>
 );
 
+const { connect } = ReactRedux;
+// import { connect } from 'react-redux';
+
 // Recordar que este es un component function y solo se pasa el props y se ejecuta con el mismo nombre.
 // Podemos pasarle mas props y el context que en este caso es store
 let nextTodoId = 0;
-const AddTodo = (props, { store }) => {
+let  AddTodo = ({ dispatch }) => {
   let input;
   // Lo que devuelve ref en el unput es el value lo guardamos en una variable input
   return (
@@ -191,7 +194,7 @@ const AddTodo = (props, { store }) => {
         input = text;
       }} />
       <button onClick={ () => {
-          store.dispatch({
+          dispatch({
             type: 'ADD_TODO',
             id: nextTodoId++,
             text: input.value
@@ -203,10 +206,17 @@ const AddTodo = (props, { store }) => {
     </div>
   )
 }
-// Declaramos el context
-AddTodo.contextTypes = {
-  store: React.PropTypes.object
-}
+// Como AddTodo no tiene components hijos se envia el connect a el mismo.
+AddTodo = connect()(AddTodo);
+/* Internamente esto es lo que hace el connect o podriamos hacerlo manualmente*/
+// AddTodo = connect(
+//   state => {
+//     return {};
+//   },
+//   dispatch => {
+//     return { dispatch };
+//   }
+// )(AddTodo);
 
 // Un reducer donde manejamos los types de filters
 const getVisibleTodos = (todos, filter) => {
@@ -223,7 +233,7 @@ const getVisibleTodos = (todos, filter) => {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToTodoListProps = (state) => {
   return {
     todos: getVisibleTodos(
       state.todos,
@@ -232,7 +242,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToTodoListProps = (dispatch) => {
   return {
     onTodoClick: (id) => {
       dispatch({
@@ -243,14 +253,11 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-// Con esto no necesitamos el component VisibleTodoList
-const { connect } = ReactRedux;
-// import { connect } from 'react-redux';
-
 // Se creo un component basado en connect de ReactRedux para pasar los state y el dispatch
+// Con esto no necesitamos el component VisibleTodoList
 const VisibleTodoList = connect(
-  mapStateToProps,
-  mapDispatchToProps
+  mapStateToTodoListProps,
+  mapDispatchToTodoListProps
 )(TodoList);
 
 /*
