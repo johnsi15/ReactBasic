@@ -61,9 +61,6 @@ const todoApp = combineReducers({
   todos,
   visibilityFilter
 });
-// Creamos el stote del los reducers
-const { createStore } = Redux;
-const store = createStore(todoApp);
 
 const { Component } = React;
 
@@ -93,6 +90,7 @@ const Link = ({
 class FilterLink extends Component {
   // Montamos el resultado del store.subscribe
   componentDidMount(){
+    const { store } = this.props;
     // Cuando damos un enter y no colocamos nada en la @ function le indicamos que es solo una linea.
     // Por eso no podemos agregar ; al final de this.forceUpdate
     this.unsubscribe = store.subscribe(() =>
@@ -107,6 +105,7 @@ class FilterLink extends Component {
 
   render(){
     const props = this.props;
+    const { store } = this.props;
     // Cuando usamos esto estamos usando los reducers ya definidos
     const state = store.getState();
 
@@ -126,25 +125,29 @@ class FilterLink extends Component {
   }
 }
 
-const Footer = () => (
+// Recordar que este es un component function y solo se pasa el props y se ejecuta con el mismo nombre.
+const Footer = ({ store }) => (
   // {/* Con el { ' ' } dejamos un espacio al lado. */}
   <p>
     Show:
     { ' ' }
     <FilterLink
       filter='SHOW_ALL'
+      store={ store }
     >
       All
     </FilterLink>
     { ', ' }
     <FilterLink
       filter='SHOW_ACTIVE'
+      store={ store }
     >
       Activate
     </FilterLink>
     { ', ' }
     <FilterLink
       filter='SHOW_COMPLETED'
+      store={ store }
     >
       Completed
     </FilterLink>
@@ -175,7 +178,8 @@ const TodoList = ({ todos, onTodoClick }) => (
   </ul>
 );
 
-const AddTodo = () => {
+// Recordar que este es un component function y solo se pasa el props y se ejecuta con el mismo nombre.
+const AddTodo = ({ store }) => {
   let input;
   // Lo que devuelve ref en el unput es el value lo guardamos en una variable input
   return (
@@ -219,6 +223,7 @@ const getVisibleTodos = (todos, filter) => {
 class VisibleTodoList extends Component {
   // Montamos el resultado del store.subscribe
   componentDidMount(){
+    const { store } = this.props;
   // Cuando damos un enter y no colocamos nada en la @ function le indicamos que es solo una linea.
   // Por eso no podemos agregar ; al final de this.forceUpdate
   // El componente necesita volver a renderizar llamando a forceUpdate ().
@@ -241,6 +246,7 @@ class VisibleTodoList extends Component {
 
   render(){
     const props = this.props;
+    const { store } = this.props;
     // getState() regresa el actual árbol de estado de tu aplicación. Es igual al último valor regresado por los reducers del store.
     const state = store.getState();
     /*
@@ -268,21 +274,28 @@ class VisibleTodoList extends Component {
 
 // Con el dispatch despachamos el reducer todos
 let nextTodoId = 0;
-const TodoApp = () => {
+const TodoApp = ({ store }) => {
   // text como tiene el mismo nombre se envia solo text en el object
   return (
     <div className='container'>
-      <AddTodo />
-      <VisibleTodoList />
-      <Footer />
+      <AddTodo store={ store }/>
+      <VisibleTodoList store={ store }/>
+      <Footer store={ store }/>
     </div>
   );
-
 }
+
+// Creamos el stote del los reducers
+const { createStore } = Redux;
 
 // Cada vez que hacemos render de TodoApp usamos el componentDidMount(),
 // para subscribe el nuevo state o reducer
+// Pasamos el store como una prop para no tenerla como global
 ReactDOM.render(
-  <TodoApp />,
+  <TodoApp store={ createStore(todoApp) }/>,
   document.getElementById('app')
 );
+
+/*
+  Nota: En los JSX { } no se puede colocar ; al final de cada sentencia de código.
+*/
