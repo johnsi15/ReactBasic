@@ -36,36 +36,54 @@
           unlike: action.unlike,
           title: action.title,
           description: action.description,
-          image: action.image,
-          likeCount: 0,
-          unlikeCount: 0
-        }
+          image: action.image
+        };
       case 'LIKE':
         if(state.id !== action.id){
           return state;
         }
+
         return {
           ...state,
           like: !state.like,
-          unlike: !state.like ? false : state.unlike
+          unlike: !state.like ? false : state.unlike,
+          count: count(state, action)
+          // likeCount: !state.like ? state.likeCount + 1 : state.likeCount,
+          // unlikeCount: !state.like && state.unlike ? state.unlikeCount - 1 : state.unlikeCount
         };
       case 'UNLIKE':
         if(state.id !== action.id){
           return state;
         }
+
         return {
           ...state,
           like: !state.unlike ? false : state.like,
           unlike: !state.unlike,
-          unlikeCount: !state.unlike ? state.unlikeCount + 1 : state.likeCount - 1,
-          likeCount: !state.like ? state.likeCount + 1 : state.likeCount - 1
+          unlikeCount: !state.unlike ? state.unlikeCount + 1 : state.unlikeCount - 1,
+          likeCount: !state.unlike && state.like ? state.likeCount - 1 : state.likeCount
         };
       default:
         return state;
     }
   };
 
-  const likes = (state = [], action) => {
+  const count = (state, action) => {
+    switch (action.type){
+      case 'LIKE':
+        return {
+          likeCount: !state.like ? state.likeCount + 1 : state.likeCount,
+          unlikeCount: !state.like && state.unlike ? state.unlikeCount - 1 : state.unlikeCount
+        }
+      case 'UNLIKE':
+        return {
+        }
+      default:
+        return state;
+    }
+  }
+
+  const likes = (state = data, action) => {
     switch (action.type){
       case 'ADD':
         return [
@@ -84,27 +102,15 @@
   class App extends React.Component {
     constructor(props) {
       super(props);
-      const { list, store } = this.props;
-
-      list.map((movie, index) => {
-        store.dispatch({
-          type: 'ADD',
-          id: index,
-          like: movie.like,
-          unlike: movie.unlike,
-          title: movie.title,
-          description: movie.description,
-          image: movie.image
-        })
-      });
+      // const { list } = this.props;
+      const state = this.props.store.getState();
 
       this.state = {
-        moviesLength: list.length,
+        moviesLength: state.length,
         likeCount: 0,
         unlikeCount: 0
       }
     }
-
 
     componentDidMount(){
       const { store } = this.props;
@@ -118,14 +124,18 @@
       this.unsubscribe();
     }
 
-    this.setState(function(prevState){
-      likeCount: !movie.like ? this.state.likeCount + 1 : this.state.likeCount - 1,
-      unlikeCount: !movie.unlike ? this.state.unlikeCount + 1 : this.state.unlikeCount - 1
-    });
-
     render(){
       const state = this.props.store.getState();
-      console.log('state en App', state)
+      console.log('state en App', state);
+      // state.map((st, index) => {
+      //   this.props.store.dispatch({
+      //     type: 'COUNT',
+      //     likeCount: st.likeCount,
+      //     unlikeCount: st.unlikeCount
+      //   })
+      // })
+      const { likeCount, unlikeCount } = state[0];
+
       return(
         <section className="container">
           <MovieList list={ this.props.list }
@@ -146,8 +156,8 @@
               />
 
           <Footer all={ this.state.moviesLength }
-             likeCount={ this.state.likeCount }
-             unlikeCount={ this.state.unlikeCount }/>
+             likeCount={ likeCount }
+             unlikeCount={ unlikeCount }/>
         </section>
       );
     }
@@ -240,6 +250,8 @@
       description: "Antes de ser Wonder Woman ...",
       like: false,
       unlike: false,
+      likeCount: 0,
+      unlikeCount: 0,
       image: "https://image.tmdb.org/t/p/w300/yjzHtHSAPDdRQejnTyFbifX2gef.jpg"
     },
     {
@@ -247,6 +259,8 @@
       title: "The Mummy",
       like: false,
       unlike: false,
+      likeCount: 0,
+      unlikeCount: 0,
       description: "A pesar de estar enterrada en ...",
       image: "https://image.tmdb.org/t/p/w300/6kCPiZ0eG3BoWvxgTq2Z8AYnEo.jpg"
     },
@@ -255,6 +269,8 @@
       title: "Piratas del caribe",
       like: false,
       unlike: false,
+      likeCount: 0,
+      unlikeCount: 0,
       description: "Empujado hacia una nueva aventura ...",
       image: "https://image.tmdb.org/t/p/w300/gB3cNhpfxEWSjiKSGOv8nlmVdeu.jpg"
     },
@@ -263,6 +279,8 @@
       title: "Logan",
       like: false,
       unlike: false,
+      likeCount: 0,
+      unlikeCount: 0,
       description: "Sin sus poderes, por primera vez ...",
       image: "https://image.tmdb.org/t/p/w300//5pAGnkFYSsFJ99ZxDIYnhQbQFXs.jpg"
     },
@@ -271,6 +289,8 @@
       title: "John Wick",
       like: false,
       unlike: false,
+      likeCount: 0,
+      unlikeCount: 0,
       description: "Sin sus poderes, por primera vez ...",
       image: "https://image.tmdb.org/t/p/w300/sl3QSDb7rB6dS4wzJoTJbhCVvVF.jpg"
     },
@@ -279,6 +299,8 @@
       title: "Guardianes de la Galaxia",
       like: false,
       unlike: false,
+      likeCount: 0,
+      unlikeCount: 0,
       description: "Sin sus poderes, por primera vez ...",
       image: "https://image.tmdb.org/t/p/w300/9Ju7p4daJi5rcTUghYZxHlP15ia.jpg"
     },
@@ -287,6 +309,8 @@
       title: "Alien: Covenant",
       like: false,
       unlike: false,
+      likeCount: 0,
+      unlikeCount: 0,
       description: "Sin sus poderes, por primera vez ...",
       image: "https://image.tmdb.org/t/p/w300/ewVHnq4lUiovxBCu64qxq5bT2lu.jpg"
     }
@@ -295,8 +319,14 @@
   const { createStore } = Redux;
   const app = document.getElementById('app');
 
+  const initialState = {
+    movies: {
+      list: data
+    }
+  };
+
   ReactDOM.render(
-    <App list={ data } store={ createStore(likes) }/>,
+    <App store={ createStore(likes) }/>,
     app
   );
 
