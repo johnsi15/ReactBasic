@@ -47,7 +47,6 @@
           ...state,
           like: !state.like,
           unlike: !state.like ? false : state.unlike,
-          count: count(state, action)
           // likeCount: !state.like ? state.likeCount + 1 : state.likeCount,
           // unlikeCount: !state.like && state.unlike ? state.unlikeCount - 1 : state.unlikeCount
         };
@@ -60,23 +59,27 @@
           ...state,
           like: !state.unlike ? false : state.like,
           unlike: !state.unlike,
-          unlikeCount: !state.unlike ? state.unlikeCount + 1 : state.unlikeCount - 1,
-          likeCount: !state.unlike && state.like ? state.likeCount - 1 : state.likeCount
+          // unlikeCount: !state.unlike ? state.unlikeCount + 1 : state.unlikeCount - 1,
+          // likeCount: !state.unlike && state.like ? state.likeCount - 1 : state.likeCount
         };
       default:
         return state;
     }
   };
 
-  const count = (state, action) => {
+  const count = (state = {likeCount: 0, unlikeCount: 0}, action) => {
     switch (action.type){
       case 'LIKE':
+        console.log(`'action like -> ${!action.like} y el ${state.likeCount}`);
+        console.log(`'action like 2 -> ${action.like} y el ${state.likeCount}`);
         return {
-          likeCount: !state.like ? state.likeCount + 1 : state.likeCount,
-          unlikeCount: !state.like && state.unlike ? state.unlikeCount - 1 : state.unlikeCount
+          likeCount: !action.like ? state.likeCount + 1 : state.likeCount - 1,
+          unlikeCount: !action.like && action.unlike ? state.unlikeCount - 1 : state.unlikeCount
         }
       case 'UNLIKE':
         return {
+          unlikeCount: !state.unlike ? state.unlikeCount + 1 : state.unlikeCount - 1,
+          likeCount: !state.unlike && state.like ? state.likeCount - 1 : state.likeCount
         }
       default:
         return state;
@@ -127,23 +130,18 @@
     render(){
       const state = this.props.store.getState();
       console.log('state en App', state);
-      // state.map((st, index) => {
-      //   this.props.store.dispatch({
-      //     type: 'COUNT',
-      //     likeCount: st.likeCount,
-      //     unlikeCount: st.unlikeCount
-      //   })
-      // })
-      const { likeCount, unlikeCount } = state[0];
+      console.log('state count -> ', this.props.store.getState().count)
+      const { likeCount, unlikeCount } = this.state;
 
       return(
         <section className="container">
           <MovieList list={ this.props.list }
                 store={ this.props.store }
-                onLikeClick={id =>
+                onLikeClick={(id, like) =>
                   this.props.store.dispatch({
                     type: 'LIKE',
-                    id
+                    id,
+                    like
                   })
                 }
 
@@ -169,14 +167,14 @@
     }
 
     render(){
-      const { list, store, onLikeClick, onUnLikeClick} = this.props;
-      const state = store.getState();
+      const { list, store, onLikeClick, onUnLikeClick, onCountClick} = this.props;
+      const state = store.getState().likes;
 
       const listMovies = state.map((movie, index) => {
-                          // console.log('Hola movie -> ', movie)
+                          // console.log('Hola movie -> ', movie.like)
                           return <Movie { ...movie } key={ index }
                                           onLike={() =>
-                                            onLikeClick(index)
+                                            onLikeClick(index, movie.like)
                                           }
                                           onUnlike={() =>
                                             onUnLikeClick(index)
@@ -316,7 +314,7 @@
     }
   ]
 
-  const { createStore } = Redux;
+  const { combineReducers, createStore } = Redux;
   const app = document.getElementById('app');
 
   const initialState = {
@@ -325,8 +323,13 @@
     }
   };
 
+  const todoApp = combineReducers({
+    likes,
+    count
+  });
+
   ReactDOM.render(
-    <App store={ createStore(likes) }/>,
+    <App store={ createStore(todoApp) }/>,
     app
   );
 
