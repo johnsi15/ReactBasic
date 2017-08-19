@@ -7,18 +7,17 @@ const like = (state, action) => {
     case 'ADD':
       return {
         id: action.id,
-        like: action.like,
-        unlike: action.unlike,
         title: action.title,
         description: action.description,
         image: action.image,
-        likeCount: 0,
-        unlikeCount: 0
-      }
+        like: false,
+        unlike: false
+      };
     case 'LIKE':
       if(state.id !== action.id){
         return state;
       }
+
       return {
         ...state,
         like: !state.like,
@@ -28,19 +27,36 @@ const like = (state, action) => {
       if(state.id !== action.id){
         return state;
       }
+
       return {
         ...state,
         like: !state.unlike ? false : state.like,
-        unlike: !state.unlike,
-        unlikeCount: !state.unlike ? state.unlikeCount + 1 : state.likeCount - 1,
-        likeCount: !state.like ? state.likeCount + 1 : state.likeCount - 1
+        unlike: !state.unlike
       };
     default:
       return state;
   }
 };
 
-const likes = (state = [], action) => {
+const likesCount = (state = initialState.likesCount, action) => {
+  switch (action.type){
+    case 'LIKE':
+      //Es necesario tenes los dos porque si viene del unlike true se necesita
+      return {
+        likeCount: !action.like ? state.likeCount + 1 : state.likeCount - 1,
+        unlikeCount: !action.like && action.unlike ? state.unlikeCount - 1 : state.unlikeCount
+      }
+    case 'UNLIKE':
+      return {
+        unlikeCount: !action.unlike ? state.unlikeCount + 1 : state.unlikeCount - 1,
+        likeCount: !action.unlike && action.like ? state.likeCount - 1 : state.likeCount
+      }
+    default:
+      return state;
+  }
+}
+
+const likes = (state = initialState.data, action) => {
   switch (action.type){
     case 'ADD':
       return [
@@ -59,27 +75,13 @@ const likes = (state = [], action) => {
 class App extends React.Component {
   constructor(props) {
     super(props);
-    const { list, store } = this.props;
-
-    list.map((movie, index) => {
-      store.dispatch({
-        type: 'ADD',
-        id: index,
-        like: movie.like,
-        unlike: movie.unlike,
-        title: movie.title,
-        description: movie.description,
-        image: movie.image
-      })
-    });
+    const { store } = this.props;
+    const state = store.getState().likes;
 
     this.state = {
-      moviesLength: list.length,
-      likeCount: 0,
-      unlikeCount: 0
+      moviesLength: state.length
     }
   }
-
 
   componentDidMount(){
     const { store } = this.props;
@@ -94,36 +96,35 @@ class App extends React.Component {
   }
 
   render(){
-    const state = this.props.store.getState();
-    console.log('state en App', state)
-    const count = state.map((movie, index) => {
-      return {
-        likeCount: !movie.like ? this.state.likeCount + 1 : this.state.likeCount - 1,
-        unlikeCount: !movie.unlike ? this.state.unlikeCount + 1 : this.state.unlikeCount - 1
-      }
-    });
+    const { store } = this.props;
+    const state = store.getState().likesCount;
+
     return(
       <section className="container">
         <MovieList list={ this.props.list }
               store={ this.props.store }
-              onLikeClick={id =>
+              onLikeClick={(id, like, unlike) =>
                 this.props.store.dispatch({
                   type: 'LIKE',
-                  id
+                  id,
+                  like,
+                  unlike
                 })
               }
 
-              onUnLikeClick={id =>
+              onUnLikeClick={(id, unlike, like) =>
                 this.props.store.dispatch({
                   type: 'UNLIKE',
-                  id
+                  id,
+                  unlike,
+                  like
                 })
               }
             />
 
         <Footer all={ this.state.moviesLength }
-           likeCount={ this.state.likeCount }
-           unlikeCount={ this.state.unlikeCount }/>
+           likeCount={ state.likeCount }
+           unlikeCount={ state.unlikeCount }/>
       </section>
     );
   }
@@ -135,21 +136,20 @@ class MovieList extends React.Component {
   }
 
   render(){
-    const { list, store, onLikeClick, onUnLikeClick} = this.props;
-    const state = store.getState();
+    const { list, store, onLikeClick, onUnLikeClick, onCountClick} = this.props;
+    const state = store.getState().likes;
 
     const listMovies = state.map((movie, index) => {
-                        // console.log('Hola movie -> ', movie)
+                        // console.log('Hola movie -> ', movie.like)
                         return <Movie { ...movie } key={ index }
                                         onLike={() =>
-                                          onLikeClick(index)
+                                          onLikeClick(index, movie.like, movie.unlike)
                                         }
                                         onUnlike={() =>
-                                          onUnLikeClick(index)
+                                          onUnLikeClick(index, movie.unlike, movie.like)
                                         }
-                                        />
+                                      />
                       });
-    // console.log('lista de movies -> ', listMovies)
     return(
       <ul className="movieList">
         { listMovies }
@@ -168,14 +168,10 @@ class Movie extends React.Component {
       title,
       onLike,
       onUnlike,
-      state,
       like,
       unlike
     } = this.props;
 
-    // const state = store.getState();
-    // console.log('state -> ', state);
-    // console.log('state like  -> ', like);
     return(
       <li className="Movie">
         <figure className="Movie-image">
@@ -268,10 +264,23 @@ const data = [
   }
 ]
 
-const { createStore } = Redux;
+const { combineReducers, createStore } = Redux;
 const app = document.getElementById('app');
 
+const initialState = {
+  likesCount: {
+    likeCount: 0,
+    unlikeCount: 0
+  },
+  data
+};
+
+const todoApp = combineReducers({
+  likes,
+  likesCount
+});
+
 ReactDOM.render(
-  <App list={ data } store={ createStore(likes) }/>,
+  <App store={ createStore(todoApp) }/>,
   app
 );

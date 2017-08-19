@@ -46,9 +46,7 @@
         return {
           ...state,
           like: !state.like,
-          unlike: !state.like ? false : state.unlike,
-          // likeCount: !state.like ? state.likeCount + 1 : state.likeCount,
-          // unlikeCount: !state.like && state.unlike ? state.unlikeCount - 1 : state.unlikeCount
+          unlike: !state.like ? false : state.unlike
         };
       case 'UNLIKE':
         if(state.id !== action.id){
@@ -58,35 +56,32 @@
         return {
           ...state,
           like: !state.unlike ? false : state.like,
-          unlike: !state.unlike,
-          // unlikeCount: !state.unlike ? state.unlikeCount + 1 : state.unlikeCount - 1,
-          // likeCount: !state.unlike && state.like ? state.likeCount - 1 : state.likeCount
+          unlike: !state.unlike
         };
       default:
         return state;
     }
   };
 
-  const count = (state = {likeCount: 0, unlikeCount: 0}, action) => {
+  const likesCount = (state = initialState.likesCount, action) => {
     switch (action.type){
       case 'LIKE':
-        console.log(`'action like -> ${!action.like} y el ${state.likeCount}`);
-        console.log(`'action like 2 -> ${action.like} y el ${state.likeCount}`);
+        //Es necesario tenes los dos porque si viene del unlike true se necesita
         return {
           likeCount: !action.like ? state.likeCount + 1 : state.likeCount - 1,
           unlikeCount: !action.like && action.unlike ? state.unlikeCount - 1 : state.unlikeCount
         }
       case 'UNLIKE':
         return {
-          unlikeCount: !state.unlike ? state.unlikeCount + 1 : state.unlikeCount - 1,
-          likeCount: !state.unlike && state.like ? state.likeCount - 1 : state.likeCount
+          unlikeCount: !action.unlike ? state.unlikeCount + 1 : state.unlikeCount - 1,
+          likeCount: !action.unlike && action.like ? state.likeCount - 1 : state.likeCount
         }
       default:
         return state;
     }
   }
 
-  const likes = (state = data, action) => {
+  const likes = (state = initialState.data, action) => {
     switch (action.type){
       case 'ADD':
         return [
@@ -105,13 +100,11 @@
   class App extends React.Component {
     constructor(props) {
       super(props);
-      // const { list } = this.props;
-      const state = this.props.store.getState();
+      const { store } = this.props;
+      const state = store.getState().likes;
 
       this.state = {
-        moviesLength: state.length,
-        likeCount: 0,
-        unlikeCount: 0
+        moviesLength: state.length
       }
     }
 
@@ -128,34 +121,35 @@
     }
 
     render(){
-      const state = this.props.store.getState();
-      console.log('state en App', state);
-      console.log('state count -> ', this.props.store.getState().count)
-      const { likeCount, unlikeCount } = this.state;
+      const { store } = this.props;
+      const state = store.getState().likesCount;
 
       return(
         <section className="container">
           <MovieList list={ this.props.list }
                 store={ this.props.store }
-                onLikeClick={(id, like) =>
+                onLikeClick={(id, like, unlike) =>
                   this.props.store.dispatch({
                     type: 'LIKE',
                     id,
-                    like
+                    like,
+                    unlike
                   })
                 }
 
-                onUnLikeClick={id =>
+                onUnLikeClick={(id, unlike, like) =>
                   this.props.store.dispatch({
                     type: 'UNLIKE',
-                    id
+                    id,
+                    unlike,
+                    like
                   })
                 }
               />
 
           <Footer all={ this.state.moviesLength }
-             likeCount={ likeCount }
-             unlikeCount={ unlikeCount }/>
+             likeCount={ state.likeCount }
+             unlikeCount={ state.unlikeCount }/>
         </section>
       );
     }
@@ -174,10 +168,10 @@
                           // console.log('Hola movie -> ', movie.like)
                           return <Movie { ...movie } key={ index }
                                           onLike={() =>
-                                            onLikeClick(index, movie.like)
+                                            onLikeClick(index, movie.like, movie.unlike)
                                           }
                                           onUnlike={() =>
-                                            onUnLikeClick(index)
+                                            onUnLikeClick(index, movie.unlike, movie.like)
                                           }
                                           />
                         });
@@ -200,7 +194,6 @@
         title,
         onLike,
         onUnlike,
-        state,
         like,
         unlike
       } = this.props;
@@ -248,8 +241,6 @@
       description: "Antes de ser Wonder Woman ...",
       like: false,
       unlike: false,
-      likeCount: 0,
-      unlikeCount: 0,
       image: "https://image.tmdb.org/t/p/w300/yjzHtHSAPDdRQejnTyFbifX2gef.jpg"
     },
     {
@@ -257,8 +248,6 @@
       title: "The Mummy",
       like: false,
       unlike: false,
-      likeCount: 0,
-      unlikeCount: 0,
       description: "A pesar de estar enterrada en ...",
       image: "https://image.tmdb.org/t/p/w300/6kCPiZ0eG3BoWvxgTq2Z8AYnEo.jpg"
     },
@@ -267,8 +256,6 @@
       title: "Piratas del caribe",
       like: false,
       unlike: false,
-      likeCount: 0,
-      unlikeCount: 0,
       description: "Empujado hacia una nueva aventura ...",
       image: "https://image.tmdb.org/t/p/w300/gB3cNhpfxEWSjiKSGOv8nlmVdeu.jpg"
     },
@@ -277,8 +264,6 @@
       title: "Logan",
       like: false,
       unlike: false,
-      likeCount: 0,
-      unlikeCount: 0,
       description: "Sin sus poderes, por primera vez ...",
       image: "https://image.tmdb.org/t/p/w300//5pAGnkFYSsFJ99ZxDIYnhQbQFXs.jpg"
     },
@@ -287,8 +272,6 @@
       title: "John Wick",
       like: false,
       unlike: false,
-      likeCount: 0,
-      unlikeCount: 0,
       description: "Sin sus poderes, por primera vez ...",
       image: "https://image.tmdb.org/t/p/w300/sl3QSDb7rB6dS4wzJoTJbhCVvVF.jpg"
     },
@@ -297,8 +280,6 @@
       title: "Guardianes de la Galaxia",
       like: false,
       unlike: false,
-      likeCount: 0,
-      unlikeCount: 0,
       description: "Sin sus poderes, por primera vez ...",
       image: "https://image.tmdb.org/t/p/w300/9Ju7p4daJi5rcTUghYZxHlP15ia.jpg"
     },
@@ -307,8 +288,6 @@
       title: "Alien: Covenant",
       like: false,
       unlike: false,
-      likeCount: 0,
-      unlikeCount: 0,
       description: "Sin sus poderes, por primera vez ...",
       image: "https://image.tmdb.org/t/p/w300/ewVHnq4lUiovxBCu64qxq5bT2lu.jpg"
     }
@@ -318,14 +297,16 @@
   const app = document.getElementById('app');
 
   const initialState = {
-    movies: {
-      list: data
-    }
+    likesCount: {
+      likeCount: 0,
+      unlikeCount: 0
+    },
+    data
   };
 
   const todoApp = combineReducers({
     likes,
-    count
+    likesCount
   });
 
   ReactDOM.render(
