@@ -202,6 +202,7 @@ const AddTodo = ({ store }) => {
 }
 
 // Un reducer donde manejamos los types de filters
+// Realmente no es un reducer porque no esta en createStore es solo una function
 const getVisibleTodos = (todos, filter) => {
   switch (filter){
     case 'SHOW_ALL':

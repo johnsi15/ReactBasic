@@ -159,6 +159,7 @@ class MovieList extends React.Component {
 }
 
 // Puedo llevarme un component a otro project
+// Este component podria se run component normal sin necesidad de extends
 class Movie extends React.Component {
 
   render(){

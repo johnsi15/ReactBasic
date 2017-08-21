@@ -32,11 +32,11 @@
       case 'ADD':
         return {
           id: action.id,
-          like: action.like,
-          unlike: action.unlike,
           title: action.title,
           description: action.description,
-          image: action.image
+          image: action.image,
+          like: false,
+          unlike: false
         };
       case 'LIKE':
         if(state.id !== action.id){
@@ -173,9 +173,8 @@
                                           onUnlike={() =>
                                             onUnLikeClick(index, movie.unlike, movie.like)
                                           }
-                                          />
+                                        />
                         });
-      // console.log('lista de movies -> ', listMovies)
       return(
         <ul className="movieList">
           { listMovies }
@@ -198,9 +197,6 @@
         unlike
       } = this.props;
 
-      // const state = store.getState();
-      // console.log('state -> ', state);
-      // console.log('state like  -> ', like);
       return(
         <li className="Movie">
           <figure className="Movie-image">
@@ -313,8 +309,6 @@
     <App store={ createStore(todoApp) }/>,
     app
   );
-
-
   </script>
 </body>
 </html>
